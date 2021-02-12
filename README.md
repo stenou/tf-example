@@ -13,4 +13,4 @@ Instance A is in the private subnet.  It can access the internet but can't be ac
 
 Instance B is in the intra subnet.  It can't access the internet.  It can access s3 through an s3 endpoint
 
-Instance C is in the public subnet.  It can be access from the internet.  It has its own security group that opens port 1234 in addition to 22 and 80 from the other subnets
+Instance C is in the public subnet.  It can be access from the internet.  It has its own security group that opens port 1234 in addition to 80 from the other subnets
