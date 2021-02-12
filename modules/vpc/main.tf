@@ -187,8 +187,20 @@ resource "aws_vpc_endpoint" "s3" {
 ##########################
 # Route table association
 ##########################
-resource aws_vpc_endpoint_route_table_association "s3" {
+resource aws_vpc_endpoint_route_table_association "s3_intra" {
   route_table_id = aws_route_table.intra.id
+  vpc_endpoint_id = aws_vpc_endpoint.s3.id
+}
+
+resource aws_vpc_endpoint_route_table_association "s3_public" {
+  route_table_id = aws_route_table.public.id
+  vpc_endpoint_id = aws_vpc_endpoint.s3.id
+}
+
+resource aws_vpc_endpoint_route_table_association "s3_private" {
+  count = length(var.private_subnets)
+
+  route_table_id = element(aws_route_table.private.*.id, count.index)
   vpc_endpoint_id = aws_vpc_endpoint.s3.id
 }
 
@@ -217,9 +229,16 @@ resource "aws_default_security_group" "default" {
   vpc_id = aws_vpc.this.id
 
   ingress {
-    protocol  = -1
-    from_port = 0
-    to_port   = 0
+    protocol  = "tcp"
+    from_port = 22
+    to_port   = 22
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    protocol = "tcp"
+    from_port = 80
+    to_port = 80
     cidr_blocks = ["0.0.0.0/0"]
   }
 

@@ -8,15 +8,14 @@ resource "aws_security_group" "web" {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["10.0.0.0/16", "11.0.0.0/16"]
   }
 
   ingress {
-    description = "ssh"
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+      from_port   = 1234
+      to_port     = 1234
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
@@ -33,15 +32,15 @@ resource "aws_instance" "C" {
   associate_public_ip_address = true
   iam_instance_profile = aws_iam_instance_profile.this.name
   key_name = var.ssh_key
-  security_groups = [ aws_security_group.web.id ]
+  vpc_security_group_ids = [ aws_security_group.web.id ]
 
   subnet_id = module.vpc.public_subnets[2]
 
   user_data = <<-EOF
-               #! bin/bash
-               sudo yum install nginx -y
-               sudo service nginx restart
-               EOF
-
-
+#! bin/bash
+sudo yum install nginx -y
+sed -i 's|listen       80|listen       1234|' /etc/nginx/nginx.conf
+sed -i 's|listen       [::]:80|listen       [::]:1234|' /etc/nginx/nginx.conf
+sudo service nginx restart
+EOF
 }
